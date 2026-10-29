@@ -37,6 +37,7 @@ export const getBlob = (id) => new Promise((res) => { const r = db.transaction('
 function fresh() {
   return {
     v: VERSION,
+    born: dkey(), // 見本データの「今日」。日付が変わったら作り直す
     me: 'w4',
     modules: { clock: true, camera: true, ledger: true, album: true, writer: true, dash: true },
     settings: { demoGeo: true, gasUrl: '', gasKey: '', boardDefault: true, gridDefault: true },
@@ -57,7 +58,15 @@ export async function init() {
   let saved = null;
   if (db) saved = await kvGet('state');
   if (!saved) { try { saved = JSON.parse(localStorage.getItem('nishijima-genba') || 'null'); } catch (e) { saved = null; } }
-  S = saved && saved.v === VERSION ? saved : fresh();
+  if (saved && saved.v === VERSION && saved.born === dkey()) { S = saved; return S; }
+  // デモの見本データは「今日」を基準に作っているので、前の日のデータは使わず、最初の状態に戻す
+  // （連携の設定だけは引き継ぐ）
+  S = fresh();
+  if (saved) {
+    if (saved.settings) S.settings = { ...S.settings, ...saved.settings };
+    if (db) await tx('blob', 'readwrite', (s) => s.clear()).catch(() => {});
+    save(true);
+  }
   return S;
 }
 

@@ -181,6 +181,7 @@ svg.i.xl { width: 34px; height: 34px; }
   .page--wide { max-width: 1240px; }
   .topbar { padding: 18px 40px 14px; }
   .topbar .iconbtn[data-act="back"] { display: none; }
+  .topbar .brand { visibility: hidden; } /* PCでは左メニューにロゴがあるので二重に出さない */
   .side {
     display: flex; flex-direction: column; position: sticky; top: 0; height: 100dvh;
     background: var(--ink); color: var(--white); padding: 26px 18px 20px; gap: 6px; overflow-y: auto;
